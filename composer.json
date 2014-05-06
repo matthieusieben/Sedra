@@ -1,0 +1,24 @@
+{
+	"name": "sedra/sedra",
+	"description": "Sedra, framework allowing you to easily get started with your homemade website. Contains some default modules allowing it to be used as a CMS out of the box.",
+	"type": "framework",
+	"keywords": ["cms", "framework"],
+	"homepage": "https://github.com/sera/sedra",
+	"authors": [
+		{
+			"name": "Matthieu Sieben",
+			"email": "me@matthieusieben.com",
+			"homepage": "http://matthieusieben.com",
+			"role": "Lead Developer"
+		}
+	],
+	"require": {
+		"twig/twig": "1.*",
+		"php": ">=5.3"
+	},
+	"autoload": {
+		"psr-0": {
+			"Sedra\\": "src/"
+		}
+	}
+}
