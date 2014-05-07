@@ -5,6 +5,7 @@ namespace Sedra\Controller;
 use Sedra\Controller;
 
 use Sedra\Database\ModelProvider;
+use Sedra\Database\Exception\ModelNotFoundException;
 
 use Sedra\Locale;
 use Sedra\Locale\TranslationProvider;
@@ -30,9 +31,10 @@ class i18n extends Controller implements ModelProvider, TranslationProvider
 	{
 		if (isset($this->models[$model_name]))
 			return $this->models[$model_name];
+
 		switch ($model_name) {
 		default:
-			return $this->models[$model_name] = null;
+			throw new ModelNotFoundException($model_name);
 		}
 	}
 }

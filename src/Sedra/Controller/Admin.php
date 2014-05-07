@@ -7,28 +7,38 @@ use Sedra\Request;
 
 use Sedra\Router\Route;
 use Sedra\Router\RouteProvider;
+use Sedra\Router\Exception\NoSuchRouteException;
 
 class Admin extends Controller implements RouteProvider {
 
-	public function &get_routes()
+	public function get_route_names()
 	{
-		$this->routes = $this->routes ?: array(
-			Route::factory(array(
-				'name' => 'AdminIndex',
+		return array('AdminIndex');
+	}
+
+	public function get_route($route_name)
+	{
+		if (isset($this->routes[$route_name]))
+			return $this->routes[$route_name];
+
+		switch ($route_name) {
+		case 'AdminIndex':
+			return $this->routes[$route_name] = Route::factory(array(
 				'methods' => array('GET'),
 				'query' => 'admin',
-				'handler' => array(&$this, 'admin'),
+				'handler' => array($this, 'admin'),
 				'response_wrapper' => '\Sedra\Response\HTTP\AdminPage',
-			)),
-		);
-		return $this->routes;
+			));
+		default:
+			throw new NoSuchRouteException($route_name);
+		}
 	}
 
 	/**
 	 * Routes Controllers
 	 **/
 
-	public function admin(Request &$request)
+	public function admin(Request $request)
 	{
 		return $request;
 	}

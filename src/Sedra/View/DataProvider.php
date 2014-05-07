@@ -10,5 +10,5 @@ use Sedra\View;
  **/
 interface DataProvider
 {
-	public function get_view_data($name, array &$data, Request &$request);
+	public function get_view_data($name, array &$data, Request $request);
 }

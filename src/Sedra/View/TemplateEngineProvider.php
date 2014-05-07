@@ -9,5 +9,5 @@ use Sedra\View\TemplateEngine;
  **/
 interface TemplateEngineProvider
 {
-	public function &get_template_engines();
+	public function get_template_engine();
 }

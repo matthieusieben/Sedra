@@ -29,7 +29,6 @@ Router::setup(array(
  **/
 class Router
 {
-	protected static $routes = array();
 	protected static $options = array(
 		'rewrite' => false,
 	);
@@ -46,51 +45,35 @@ class Router
 			$default ;
 	}
 
-	public function add(Route &$route)
+	public static function get_route($route_name)
 	{
-		if (isset($route->name))
-			self::$routes[$route->name] = $route;
-		else
-			self::$routes[] = $route;
-	}
-
-	public static function &get_route($route_name)
-	{
-		foreach (App::all('Sedra\Router\RouteProvider') as &$controller) {
-			$routes =& $controller->get_routes();
-			foreach ($routes as $name => &$route) {
-				if ($route->name === $route_name || $name === $route_name) {
+		foreach (App::all('Sedra\Router\RouteProvider') as $controller) {
+			try {
+				$route = $controller->get_route($route_name);
+				if ($route instanceof Route) {
 					return $route;
+				} else {
+					# Invalid behavior... Should return Route or throw NoSuchRouteException
 				}
+			} catch(NoSuchRouteException $e) {
+				continue;
 			}
-		}
-
-		if (isset(self::$routes[$route_name])) {
-			return self::$routes[$route_name];
 		}
 
 		throw new NoSuchRouteException($route_name);
 	}
 
-	public static function process(Request &$request)
+	public static function process(Request $request)
 	{
 		try {
 			# Try and match the route providers
-			foreach (App::all('Sedra\Router\RouteProvider') as &$controller) {
-				$routes =& $controller->get_routes();
-				foreach ($routes as &$route) {
+			foreach (App::all('Sedra\Router\RouteProvider') as $controller) {
+				$routes = $controller->get_routes();
+				foreach ($routes as $route) {
 					$arguments = array();
 					if ($route->match($request, $arguments)) {
 						return $route->process($request, $arguments);
 					}
-				}
-			}
-
-			# Then try the custom routes
-			foreach (self::$routes as &$route) {
-				$arguments = array();
-				if ($route->match($request, $arguments)) {
-					return $route->process($request, $arguments);
 				}
 			}
 
@@ -118,6 +101,6 @@ class Router
 
 	public static function wrap_uri($uri)
 	{
-		return self::option('script_folder') . (self::option('rewrite') ? $uri : self::option('script_file') . '/' . $uri);
+		return self::option('script_folder') . (self::option('rewrite') ? $uri : self::option('script_file') . '?q=' . $uri);
 	}
 }

@@ -38,17 +38,18 @@ class Sedra extends Controller implements DataProvider, TemplateEngineProvider, 
 	 * Interfaces implementation
 	 **/
 
-	public function get_view_data($name, array &$data, Request &$request)
+	public function get_view_data($name, array &$data, Request $request)
 	{
-		if (!empty($this->options['views_data'][$name])) {
+		if (isset($this->options['views_data'][$name])) {
 			$data[$name] = $this->options['views_data'][$name];
 		}
 	}
 
-	public function &get_template_engines()
+	public function get_template_engine()
 	{
-		$this->engines = $this->engines ?: array(new PHPTemplateEngine(dirname(__DIR__).DIRECTORY_SEPARATOR.'templates'));
-		return $this->engines;
+		static $engine;
+		$engine = $engine ?: new PHPTemplateEngine(dirname(__DIR__).DIRECTORY_SEPARATOR.'templates');
+		return $engine;
 	}
 
 	public function get_model_names()

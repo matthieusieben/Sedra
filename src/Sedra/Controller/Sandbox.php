@@ -44,20 +44,20 @@ class Sandbox extends Controller implements RouteProvider, ModelProvider
 		}
 	}
 
-	public function &get_routes() {
+	public function get_routes() {
 		$this->routes = $this->routes ?: array(
 			Route::factory(array(
 				'name' => 'SandboxTest',
 				'methods' => array('GET'),
 				'query' => 'test',
-				'controller' => array(&$this, 'test'),
+				'controller' => array($this, 'test'),
 				'response_wrapper' => '\Sedra\Response\HTTP\Page',
 			)),
 			Route::factory(array(
 				'name' => 'SandboxTestResult',
 				'methods' => array('POST'),
 				'query' => 'test',
-				'controller' => array(&$this, 'test'),
+				'controller' => array($this, 'test'),
 				'response_wrapper' => '\Sedra\Response\HTTP\Dumper',
 			)),
 		);

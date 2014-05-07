@@ -16,14 +16,22 @@ class HTTP extends Request
 	function __construct()
 	{
 		$method = $_SERVER['REQUEST_METHOD'];
-		$query = trim(@$_SERVER['PATH_INFO'] ?: @$_GET['q'] ?: 'index', '/');
+		$query = @$_SERVER['PATH_INFO'] ?: @$_GET['q'];
+
+		if ($query) {
+			$query = strtr(trim($query, '/'), '//', '/');
+		}
+
+		if (empty($query)) {
+			$query = 'index';
+		}
 
 		parent::__construct($method, $query);
 
 		$this->get =& $_GET;
 		$this->post =& $_POST;
 		$this->files =& $_FILES;
-		$this->is_ajax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']);
+		$this->is_ajax = @$_SERVER['HTTP_X_REQUESTED_WITH'] || @$_REQUEST['__ajax'];
 
 		if ($method === 'GET') {
 			$this->data =& $this->get;
@@ -32,7 +40,7 @@ class HTTP extends Request
 		}
 	}
 
-	public function &get_user()
+	public function get_user()
 	{
 		if(isset($this->user))
 			return $this->user;

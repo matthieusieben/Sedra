@@ -72,15 +72,13 @@ abstract class View
 	public static function factory($view_name, array $data = array())
 	{
 		foreach (App::all('Sedra\View\TemplateEngineProvider') as &$engine_provider) {
-			$template_engines =& $engine_provider->get_template_engines();
-			foreach ($template_engines as &$template_engine) {
-				try {
-					if ($view = $template_engine->factory($view_name, $data)) {
-						return $view;
-					}
-				} catch(ViewNotFoundException $e) {
-					continue;
+			try {
+				$template_engine = $engine_provider->get_template_engine();
+				if ($view = $template_engine->factory($view_name, $data)) {
+					return $view;
 				}
+			} catch(ViewNotFoundException $e) {
+				continue;
 			}
 		}
 		throw new ViewNotFoundException($view_name, $data);

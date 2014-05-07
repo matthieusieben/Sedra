@@ -2,6 +2,10 @@
 
 namespace Sedra;
 
+use Sedra\Router;
+use Sedra\Request;
+use Sedra\Response;
+
 defined('START_TIME') or define('START_TIME', microtime(TRUE));
 
 /**
@@ -31,7 +35,26 @@ class App
 		if (isset(self::$hooks[$interface]))
 			return self::$hooks[$interface];
 
-		static $null;
-		return $null;
+		return array();
+	}
+
+	public static function process()
+	{
+		# Get the request object
+		$request = Request::get();
+
+		# Get the corresponding response from the cache
+		if ($response = $request->cache->get()) {
+			# Nothing to do
+		} else {
+			# Generate the response
+			$response = Router::process($request);
+
+			# Store the response in the cache
+			$request->cache->set($response);
+		}
+
+		# Send the response
+		$response->send();
 	}
 }

@@ -1,13 +1,17 @@
 <?php
 
-define('START_TIME', microtime(TRUE));
-
-require __DIR__.'/vendor/autoload.php';
+$loader = require __DIR__.'/vendor/autoload.php';
+$loader->add('Custom\\', __DIR__);
 
 use Sedra\App;
 use Sedra\Router;
 use Sedra\Request;
 use Sedra\Response;
+
+# URL rewrite enabled on the server
+Router::setup(array(
+	'rewrite' => true,
+));
 
 # Configure & register the Sedra CMS controller
 App::register(new Sedra\Controller\Sedra(array(

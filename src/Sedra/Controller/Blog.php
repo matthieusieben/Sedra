@@ -5,10 +5,12 @@ namespace Sedra\Controller;
 use Sedra\Controller;
 use Sedra\Database\Model;
 use Sedra\Database\ModelProvider;
+use Sedra\Database\Exception\ModelNotFoundException;
 use Sedra\Locale;
 use Sedra\Request\HTTP as Request;
-use Sedra\Router\RouteProvider;
 use Sedra\Router\Route;
+use Sedra\Router\RouteProvider;
+use Sedra\Router\Exception\NoSuchRouteException;
 use Sedra\View;
 use Sedra\View\TemplateEngine\PHPTemplate;
 
@@ -17,40 +19,51 @@ use Sedra\View\TemplateEngine\PHPTemplate;
 */
 class Blog extends Controller implements RouteProvider, ModelProvider
 {
-	public function index(Request $request) {
+	public function handle_index(Request $request) {
 		# XXX $articles = $this->models['articles']->get_latest();
 		$articles = array();
 		return View::factory('blog/articles', array('articles' => $articles));
 	}
 
-	public function article(Request $request, $arguments) {
+	public function handle_article(Request $request, $arguments) {
 		# XXX $articles = $this->models['articles']->get_latest();
 		$article = array();
 		return View::factory('blog/article', array('article' => $article));
 	}
 
-	public function &get_routes() {
-		$this->routes = $this->routes ?: array(
-			Route::factory(array(
-				'name' => 'BlogIndex',
+	public function get_route_names()
+	{
+		return array('BlogIndex', 'BlogArticle');
+	}
+
+	public function get_route($route_name)
+	{
+		if (isset($this->routes[$route_name]))
+			return $this->routes[$route_name];
+
+		switch ($route_name) {
+		case 'BlogIndex':
+			return $this->routes[$route_name] = Route::factory(array(
 				'methods' => array('GET'),
 				'query' => 'blog',
-				'handler' => array(&$this, 'index'),
+				'handler' => array($this, 'handle_index'),
 				'response_wrapper' => '\Sedra\Response\HTTP\Page',
-			)),
-			Route::factory(array(
-				'name' => 'BlogArticle',
+			));
+		case 'BlogArticle':
+			return $this->routes[$route_name] = Route::factory(array(
 				'methods' => array('GET'),
 				'query' => 'blog/article/:id',
 				'filters' => array(
 					'id' => '[0-9]+',
 				),
-				'handler' => array(&$this, 'article'),
+				'handler' => array($this, 'handle_article'),
 				'response_wrapper' => '\Sedra\Response\HTTP\Page',
-			)),
-		);
-		return $this->routes;
+			));
+		default:
+			throw new NoSuchRouteException($route_name);
+		}
 	}
+
 
 	public function get_model_names()
 	{
@@ -67,7 +80,7 @@ class Blog extends Controller implements RouteProvider, ModelProvider
 		case 'categories':
 			return $this->models[$model_name] = new CategoryModel();
 		default:
-			return $this->models[$model_name] = null;
+			throw new ModelNotFoundException($model_name);
 		}
 	}
 }
