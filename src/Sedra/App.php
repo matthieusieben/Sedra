@@ -2,6 +2,7 @@
 
 namespace Sedra;
 
+defined('START_TIME') or define('START_TIME', microtime(TRUE));
 
 /**
  *
@@ -10,7 +11,7 @@ class App
 {
 	protected static $hooks = array();
 
-	public static function register(Controller &$controller, $prepend = true)
+	public static function register(Controller $controller, $prepend = true)
 	{
 		foreach(class_implements($controller, false) as $interface) {
 			if (!isset(self::$hooks[$interface])) {
@@ -18,20 +19,14 @@ class App
 			}
 
 			if ($prepend) {
-				self::$hooks[$interface] = array_merge(
-					array(&$controller),
-					self::$hooks[$interface]
-				);
+				array_unshift(self::$hooks[$interface], $controller);
 			} else {
-				self::$hooks[$interface] = array_merge(
-					self::$hooks[$interface],
-					array(&$controller)
-				);
+				array_push(self::$hooks[$interface], $controller);
 			}
 		}
 	}
 
-	public static function &all($interface)
+	public static function all($interface)
 	{
 		if (isset(self::$hooks[$interface]))
 			return self::$hooks[$interface];

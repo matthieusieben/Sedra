@@ -12,7 +12,7 @@ use Sedra\View\Viewable;
 abstract class Exception extends \Exception implements Viewable
 {
 	protected $default_code = 500;
-	protected $default_message = 'An unknown error occured.';
+	protected $default_message = 'An unknown error occurred.';
 	protected $default_view = 'exception';
 
 	protected $replace_keys = array();

@@ -51,10 +51,18 @@ class Sedra extends Controller implements DataProvider, TemplateEngineProvider, 
 		return $this->engines;
 	}
 
-	public function &get_models()
+	public function get_model_names()
 	{
-		$this->models = $this->models ?: array();
-		return $this->models;
+		return array();
 	}
 
+	public function get_model($model_name)
+	{
+		if (isset($this->models[$model_name]))
+			return $this->models[$model_name];
+		switch ($model_name) {
+		default:
+			return $this->models[$model_name] = null;
+		}
+	}
 }

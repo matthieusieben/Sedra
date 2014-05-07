@@ -16,11 +16,11 @@ class Database
 	protected static $handle;
 	protected static $models = array();
 
-	public static function open(\PDO &$handle)
+	public static function open(\PDO $handle)
 	{
 		$handle->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-		self::$handle =& $handle;
+		self::$handle = $handle;
 	}
 
 	public static function close()
@@ -28,12 +28,12 @@ class Database
 		self::$handle = null;
 	}
 
-	public static function &handle()
+	public static function handle()
 	{
 		return self::$handle;
 	}
 
-	public static function &get_model($model_name)
+	public static function get_model($model_name)
 	{
 		if (array_key_exists($model_name, self::$models)) {
 			if (is_null(self::$models[$model_name])) {
@@ -43,17 +43,19 @@ class Database
 		}
 
 		foreach (App::all('Sedra\Database\ModelProvider') as $model_provider) {
-			$models =& $controller->get_models();
-			foreach ($models as &$model) {
-				self::$models[$model_name] =& $model;
+			$model_names = $controller->get_model_names();
+			if (in_array($model_name, $model_names)) {
+				$model = $controller->get_model($model_name);
+				if ($model instanceof Model) {
+					self::$models[$model_name] = $model;
+					return self::$models[$model_name];
+				} else {
+					break;
+				}
 			}
 		}
 
-		if (!isset(self::$models[$model_name])) {
-			self::$models[$model_name] = null;
-			throw new ModelNotFoundException($model_name);
-		}
-
-		return self::$models[$model_name];
+		self::$models[$model_name] = null;
+		throw new ModelNotFoundException($model_name);
 	}
 }

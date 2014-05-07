@@ -2,9 +2,7 @@
 
 namespace Sedra\Database\Exception;
 
-use Sedra\Exception;
-
-class ModelNotFoundException extends Exception
+class ModelNotFoundException extends DatabaseException
 {
 	protected $default_code = 500;
 	protected $default_message = 'The model "@model_name" could not be found.';

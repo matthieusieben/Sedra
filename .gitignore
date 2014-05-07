@@ -1,3 +1,7 @@
+index.php
+
 composer.lock
 composer.phar
+
+app/*
 vendor/*

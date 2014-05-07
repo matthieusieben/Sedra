@@ -52,126 +52,138 @@ class Blog extends Controller implements RouteProvider, ModelProvider
 		return $this->routes;
 	}
 
-	public function &get_model($name)
+	public function get_model_names()
 	{
-		if (isset($this->models[$name]))
-			return $this->models[$name];
-
-		$this->models[$name] = $this->init_model($name);
-
-		return $this->models[$name];
+		return array('articles', 'categories');
 	}
 
-	public function &get_models()
+	public function get_model($model_name)
 	{
-		$this->models = $this->models ?: array(
-			'articles' => new Model('blog_articles', array(
-				'fields' => array(
-					'id' => array(
-						'type' => 'serial',
-						'unsigned' => TRUE,
-						'not null' => TRUE,
-						'hidden' => TRUE,
-					),
-					'title' => array(
-						'type' => 'varchar',
-						'length' => 255,
-						'not null' => TRUE,
-						'default' => '',
-						'display name' => 'Article title',
-						'show name' => FALSE,
-						'view' => 'title',
-					),
-					'locale' => array(
-						'type' => 'varchar',
-						'length' => 6,
-						'not null' => FALSE,
-						'options' => Locale::get_locales(),
-						'display name' => 'Language',
-					),
-					'category' => array(
-						'type' => 'int',
-						'unsigned' => TRUE,
-						'not null' => FALSE,
-						'display name' => 'Category',
-					),
-					'uid' => array(
-						'type' => 'int',
-						'unsigned' => TRUE,
-						'not null' => TRUE,
-						'display name' => 'Author',
-						'show name' => FALSE,
-						'view' => 'avatar',
-					),
-					'published' => array(
-						'type' => 'datetime',
-						'not null' => TRUE,
-						'display name' => 'Publish date',
-						'show name' => FALSE,
-						'view' => 'date',
-					),
-					'picture' => array(
-						'type' => 'int',
-						'unsigned' => TRUE,
-						'not null' => FALSE,
-						'display name' => 'Picture',
-						'show name' => FALSE,
-						'view' => 'file',
-					),
-					'body' => array(
-						'type' => 'text',
-						'not null' => TRUE,
-						'display name' => 'Body',
-						'show name' => FALSE,
-						'view' => 'text',
-					),
+		if (isset($this->models[$model_name]))
+			return $this->models[$model_name];
+		switch ($model_name) {
+		case 'articles':
+			return $this->models[$model_name] = new ArticleModel();
+		case 'categories':
+			return $this->models[$model_name] = new CategoryModel();
+		default:
+			return $this->models[$model_name] = null;
+		}
+	}
+}
+
+class ArticleModel extends Model {
+	function __construct() {
+		parent::__construct('blog_articles', array(
+			'fields' => array(
+				'id' => array(
+					'type' => 'serial',
+					'unsigned' => TRUE,
+					'not null' => TRUE,
+					'hidden' => TRUE,
 				),
-				'primary key' => array('id'),
-				'foreign keys' => array(
-					'article_category' => array(
-						'model' => 'blog_categories',
-						'columns' => array('category' => 'id'),
-						'cascade' => FALSE,
-					),
-					'article_author' => array(
-						'model' => 'users',
-						'columns' => array('uid' => 'uid'),
-						'cascade' => TRUE,
-					),
-					'article_picture' => array(
-						'model' => 'files',
-						'columns' => array('picture' => 'fid'),
-						'cascade' => FALSE,
-					),
+				'title' => array(
+					'type' => 'varchar',
+					'length' => 255,
+					'not null' => TRUE,
+					'default' => '',
+					'display name' => 'Article title',
+					'show name' => FALSE,
+					'view' => 'title',
 				),
-			)),
-			'categories' => new Model('blog_categories', array(
-				'fields' => array(
-					'id' => array(
-						'type' => 'serial',
-						'unsigned' => TRUE,
-						'not null' => TRUE,
-						'hidden' => TRUE,
-					),
-					'name' => array(
-						'type' => 'varchar',
-						'length' => 255,
-						'not null' => TRUE,
-						'default' => '',
-						'display name' => 'Category name',
-						'show name' => FALSE,
-					),
-					'locale' => array(
-						'type' => 'varchar',
-						'length' => 6,
-						'not null' => FALSE,
-						'options' => Locale::get_locales(),
-						'display name' => 'Language',
-					),
+				'locale' => array(
+					'type' => 'varchar',
+					'length' => 6,
+					'not null' => FALSE,
+					'options' => Locale::get_locales(),
+					'display name' => 'Language',
 				),
-				'primary key' => array('id'),
-			)),
-		);
-		return $this->models;
+				'category' => array(
+					'type' => 'int',
+					'unsigned' => TRUE,
+					'not null' => FALSE,
+					'display name' => 'Category',
+				),
+				'uid' => array(
+					'type' => 'int',
+					'unsigned' => TRUE,
+					'not null' => TRUE,
+					'display name' => 'Author',
+					'show name' => FALSE,
+					'view' => 'avatar',
+				),
+				'published' => array(
+					'type' => 'datetime',
+					'not null' => TRUE,
+					'display name' => 'Publish date',
+					'show name' => FALSE,
+					'view' => 'date',
+				),
+				'picture' => array(
+					'type' => 'int',
+					'unsigned' => TRUE,
+					'not null' => FALSE,
+					'display name' => 'Picture',
+					'show name' => FALSE,
+					'view' => 'file',
+				),
+				'body' => array(
+					'type' => 'text',
+					'not null' => TRUE,
+					'display name' => 'Body',
+					'show name' => FALSE,
+					'view' => 'text',
+				),
+			),
+			'primary key' => array('id'),
+			'foreign keys' => array(
+				'article_category' => array(
+					'model' => 'blog_categories',
+					'columns' => array('category' => 'id'),
+					'cascade' => FALSE,
+				),
+				'article_author' => array(
+					'model' => 'users',
+					'columns' => array('uid' => 'uid'),
+					'cascade' => TRUE,
+				),
+				'article_picture' => array(
+					'model' => 'files',
+					'columns' => array('picture' => 'fid'),
+					'cascade' => FALSE,
+				),
+			),
+		));
+	}
+}
+
+class CategoryModel extends Model {
+	function __construct() {
+		parent::__construct('blog_categories', array(
+			'fields' => array(
+				'id' => array(
+					'type' => 'serial',
+					'unsigned' => TRUE,
+					'not null' => TRUE,
+					'hidden' => TRUE,
+				),
+				'name' => array(
+					'type' => 'varchar',
+					'length' => 255,
+					'not null' => TRUE,
+					'default' => '',
+					'display name' => 'Category name',
+					'show name' => FALSE,
+				),
+				'locale' => array(
+					'type' => 'varchar',
+					'length' => 6,
+					'not null' => FALSE,
+					'options' => Locale::get_locales(),
+					'display name' => 'Language',
+				),
+			),
+			'primary key' => array('id'),
+		));
 	}
 }
