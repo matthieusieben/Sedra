@@ -2,12 +2,13 @@
 	"name": "matthieusieben/sedra",
 	"description": "PHP framework and CMS for programmers.",
 	"type": "framework",
+	"license": "MIT",
 	"keywords": ["cms", "framework"],
 	"homepage": "https://github.com/matthieusieben/sedra",
 	"authors": [
 		{
 			"name": "Matthieu Sieben",
-			"email": "me@matthieusieben.com",
+			"email": "parraccourci@gmail.com",
 			"homepage": "http://matthieusieben.com",
 			"role": "Lead Developer"
 		}
