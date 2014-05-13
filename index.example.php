@@ -4,42 +4,33 @@ $loader = require __DIR__.'/vendor/autoload.php';
 $loader->add('Custom\\', __DIR__);
 
 use Sedra\App;
+use Sedra\Locale;
 use Sedra\Router;
 use Sedra\Request;
 use Sedra\Response;
 
-# URL rewrite enabled on the server
-Router::setup(array(
-	'rewrite' => true,
+# Enable custom locales
+Locale::enable(array(
+	'fr_BE',
+	'en_US',
 ));
 
-# Configure & register the Sedra CMS controller
+# Setup the router
+Router::setup(array(
+	'rewrite' => true,
+	//'default_route' => 'MyCustomHomePageRoute',
+));
+
+# Configure & register the Sedra CMS and core controllers
+App::register(new Sedra\Controller\i18n);
+App::register(new Sedra\Controller\Admin);
 App::register(new Sedra\Controller\Sedra(array(
-	'locales' => array('en-US', 'fr-BE'),
-	'views_data' => array(
-		'site_name' => 'My amazing website',
-	),
+	'site_name' => 'My amazing website',
 )));
 
 # Add custom controllers
-App::register(new Sedra\Controller\i18n);
-App::register(new Sedra\Controller\Admin);
 App::register(new Sedra\Controller\Blog);
-App::register(new Sedra\Controller\Sandbox);
+App::register(new Custom\Controller\MyPhotoGallery);
 
-# Get the request object
-$request = Request::get();
-
-# Get the corresponding response from the cache
-if ($response = $request->cache->get()) {
-	# Nothing to do
-} else {
-	# Generate the response
-	$response = Router::process($request);
-
-	# Store the response in the cache
-	$request->cache->set($response);
-}
-
-# Send the response
-$response->send();
+# Process the request
+App::process();

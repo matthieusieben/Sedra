@@ -4,18 +4,21 @@ namespace Sedra\View\TemplateEngine;
 
 use Sedra\View;
 
+function render_php_template($__file, $__data)
+{
+	extract($__data);
+
+	ob_start();
+	require $__file;
+	return ob_get_clean();
+}
+
 /**
 *
 */
 class PHPTemplate extends View
 {
 	protected function _render(array $__data) {
-
-		extract($__data);
-		$view =& $this;
-
-		ob_start();
-		require $this->template;
-		return ob_get_clean();
+		return render_php_template($this->template, $__data);
 	}
 }

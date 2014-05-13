@@ -5,7 +5,8 @@ namespace Sedra;
 use Sedra\App;
 use Sedra\Database\Model;
 use Sedra\Database\ModelProvider;
-use Sedra\Database\Exception\ModelNotFoundException;
+use Sedra\Database\Exception as DatabaseException;
+use Sedra\Database\Exception\ModelNotFound as ModelNotFoundException;
 use Sedra\Controller;
 
 /**
@@ -41,6 +42,7 @@ class Database
 					return $model;
 				} else {
 					# Invalid behavior... Should return Model or throw ModelNotFoundException
+					throw new DatabaseException();
 				}
 			} catch(ModelNotFoundException $e) {
 				continue;

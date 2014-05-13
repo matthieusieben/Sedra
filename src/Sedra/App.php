@@ -37,24 +37,4 @@ class App
 
 		return array();
 	}
-
-	public static function process()
-	{
-		# Get the request object
-		$request = Request::get();
-
-		# Get the corresponding response from the cache
-		if ($response = $request->cache->get()) {
-			# Nothing to do
-		} else {
-			# Generate the response
-			$response = Router::process($request);
-
-			# Store the response in the cache
-			$request->cache->set($response);
-		}
-
-		# Send the response
-		$response->send();
-	}
 }

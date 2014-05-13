@@ -25,10 +25,10 @@ class FieldSet extends FormElement {
 		$this->fields = $fields;
 	}
 
-	public function set_form(Form &$form)
+	public function set_form(Form $form)
 	{
 		parent::set_form($form);
-		foreach ($this->fields as &$field)
+		foreach ($this->fields as $field)
 			$field->set_form($form);
 	}
 
@@ -38,9 +38,9 @@ class FieldSet extends FormElement {
 		$this->fields[] = $field;
 	}
 
-	public function parse(array &$data, array &$files = array())
+	public function parse(array $data, array $files = array())
 	{
-		foreach ($this->fields as &$field)
+		foreach ($this->fields as $field)
 			$field->parse($data, $files);
 	}
 
@@ -51,7 +51,7 @@ class FieldSet extends FormElement {
 
 		$this->valid = true;
 
-		foreach ($this->fields as &$field)
+		foreach ($this->fields as $field)
 			if (!$field->is_valid())
 				$this->valid = false;
 
@@ -61,7 +61,7 @@ class FieldSet extends FormElement {
 	public function errors()
 	{
 		$errors = array();
-		foreach ($this->fields as &$field)
+		foreach ($this->fields as $field)
 			$errors += (array) $field->errors();
 
 		return $errors;
@@ -70,7 +70,7 @@ class FieldSet extends FormElement {
 	public function values()
 	{
 		$values = array();
-		foreach ($this->fields as &$field)
+		foreach ($this->fields as $field)
 			$values += (array) $field->values();
 
 		return $values;
@@ -78,7 +78,7 @@ class FieldSet extends FormElement {
 
 	public function reset()
 	{
-		foreach ($this->fields as &$field)
+		foreach ($this->fields as $field)
 			$field->reset();
 	}
 }

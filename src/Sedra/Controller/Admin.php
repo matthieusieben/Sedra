@@ -7,7 +7,7 @@ use Sedra\Request;
 
 use Sedra\Router\Route;
 use Sedra\Router\RouteProvider;
-use Sedra\Router\Exception\NoSuchRouteException;
+use Sedra\Router\Exception\NoSuchRoute as NoSuchRouteException;
 
 class Admin extends Controller implements RouteProvider {
 
@@ -24,9 +24,10 @@ class Admin extends Controller implements RouteProvider {
 		switch ($route_name) {
 		case 'AdminIndex':
 			return $this->routes[$route_name] = Route::factory(array(
+				'name' => $route_name,
 				'methods' => array('GET'),
 				'query' => 'admin',
-				'handler' => array($this, 'admin'),
+				'handler' => array($this, 'handle_admin'),
 				'response_wrapper' => '\Sedra\Response\HTTP\AdminPage',
 			));
 		default:
@@ -38,7 +39,7 @@ class Admin extends Controller implements RouteProvider {
 	 * Routes Controllers
 	 **/
 
-	public function admin(Request $request)
+	public function handle_admin(Request $request)
 	{
 		return $request;
 	}

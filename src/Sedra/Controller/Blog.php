@@ -5,12 +5,12 @@ namespace Sedra\Controller;
 use Sedra\Controller;
 use Sedra\Database\Model;
 use Sedra\Database\ModelProvider;
-use Sedra\Database\Exception\ModelNotFoundException;
+use Sedra\Database\Exception\ModelNotFound as ModelNotFoundException;
 use Sedra\Locale;
 use Sedra\Request\HTTP as Request;
 use Sedra\Router\Route;
 use Sedra\Router\RouteProvider;
-use Sedra\Router\Exception\NoSuchRouteException;
+use Sedra\Router\Exception\NoSuchRoute as NoSuchRouteException;
 use Sedra\View;
 use Sedra\View\TemplateEngine\PHPTemplate;
 
@@ -44,6 +44,7 @@ class Blog extends Controller implements RouteProvider, ModelProvider
 		switch ($route_name) {
 		case 'BlogIndex':
 			return $this->routes[$route_name] = Route::factory(array(
+				'name' => $route_name,
 				'methods' => array('GET'),
 				'query' => 'blog',
 				'handler' => array($this, 'handle_index'),
@@ -51,6 +52,7 @@ class Blog extends Controller implements RouteProvider, ModelProvider
 			));
 		case 'BlogArticle':
 			return $this->routes[$route_name] = Route::factory(array(
+				'name' => $route_name,
 				'methods' => array('GET'),
 				'query' => 'blog/article/:id',
 				'filters' => array(
@@ -108,7 +110,7 @@ class ArticleModel extends Model {
 					'type' => 'varchar',
 					'length' => 6,
 					'not null' => FALSE,
-					'options' => Locale::get_locales(),
+					'options' => Locale::enabled(),
 					'display name' => 'Language',
 				),
 				'category' => array(
@@ -192,7 +194,7 @@ class CategoryModel extends Model {
 					'type' => 'varchar',
 					'length' => 6,
 					'not null' => FALSE,
-					'options' => Locale::get_locales(),
+					'options' => Locale::enabled(),
 					'display name' => 'Language',
 				),
 			),

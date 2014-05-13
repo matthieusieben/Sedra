@@ -20,6 +20,7 @@ class Cache
 		$this->request =& $request;
 
 		switch ($request->method) {
+		case 'PUT':
 		case 'POST':
 		case 'DELETE':
 			$this->disable();

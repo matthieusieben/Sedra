@@ -2,15 +2,13 @@
 
 namespace Sedra;
 
+use Sedra\Locale;
+
 use Sedra\Request\HTTP as HTTPRequest;
 use Sedra\Request\Cache as RequestCache;
-use Sedra\Request\Exception\AccessForbiddenException;
-use Sedra\Request\Exception\RequestTypeNotImplementedException;
-
-use Sedra\Response\Exception\ResponseWrapperNotFoundException;
+use Sedra\Request\Exception\RequestTypeNotImplemented as RequestTypeNotImplementedException;
 
 use Sedra\Router\Route;
-use Sedra\Router\Exception\InvalidControllerException;
 
 /**
  *
@@ -28,12 +26,15 @@ class Request
 	function __construct($method, $query)
 	{
 		$this->method = $method;
-		$this->query = trim($query, '/');
+		$this->query = strtr(trim($query, '/'), '//', '/');
 		$this->cache = new RequestCache($this);
 	}
 
 	public function __set($key, $value)
 	{
+		if (!isset($this->$key))
+			return $this->$key = $value;
+
 		$trace = debug_backtrace();
 		throw new \ErrorException(
 			'The attributes of Request objects are read only. The attribute "' . $key . '" cannot be modified.',
@@ -41,14 +42,14 @@ class Request
 		);
 	}
 
-	public function &__get($key)
+	public function __get($key)
 	{
 		if (!isset($this->$key)) {
 			switch ($key) {
 			case 'user':
 				# TODO : Load session, user, etc.
-				$this->user = new stdClass;
-				$this->user->locale = 'fr-BE';
+				$this->user = new \stdClass;
+				$this->user->locale = 'fr_BE';
 				$this->user->id = 1;
 				$this->user->role = 1;
 				break;
@@ -57,21 +58,47 @@ class Request
 		return $this->$key;
 	}
 
-	public static function &get()
+	public function locale()
 	{
-		if (isset(self::$request))
-			return self::$request;
+		# TODO : accept-lang
+		return $this->__get('user')->locale;
+	}
+
+	public static function get()
+	{
+		if (isset(static::$request))
+			return static::$request;
 
 		if (isset($_SERVER['REQUEST_METHOD'])) {
-			self::$request = new HTTPRequest();
+			static::$request = new HTTPRequest();
 		}
 		/* elseif(PHP_SAPI == 'cli') {
-			self::$request = new CLIRequest(@$_SERVER['argv'][1] ?: 'help');
+			static::$request = new CLIRequest(@$_SERVER['argv'][1] ?: 'help');
 		} */
 		else {
 			throw new RequestTypeNotImplementedException();
 		}
 
-		return self::$request;
+		return static::$request;
+	}
+
+	public static function process()
+	{
+		# Get the request object
+		$request = static::get();
+
+		# Get the corresponding response from the cache
+		if ($response = $request->cache->get()) {
+			# Nothing to do
+		} else {
+			# Generate the response
+			$response = Router::process($request);
+
+			# Store the response in the cache
+			$request->cache->set($response);
+		}
+
+		# Send the response
+		$response->send();
 	}
 }

@@ -18,14 +18,6 @@ class HTTP extends Request
 		$method = $_SERVER['REQUEST_METHOD'];
 		$query = @$_SERVER['PATH_INFO'] ?: @$_GET['q'];
 
-		if ($query) {
-			$query = strtr(trim($query, '/'), '//', '/');
-		}
-
-		if (empty($query)) {
-			$query = 'index';
-		}
-
 		parent::__construct($method, $query);
 
 		$this->get =& $_GET;

@@ -3,7 +3,7 @@
 namespace Sedra;
 
 use Sedra\App;
-use Sedra\Controller;
+use Sedra\Request;
 use Sedra\Locale\TranslationProvider;
 
 /**
@@ -11,28 +11,32 @@ use Sedra\Locale\TranslationProvider;
  **/
 class Locale
 {
-	const REFERENCE = 'en-US';
-	protected static $locale = self::REFERENCE;
+	const REFERENCE = 'en_US';
+	protected static $current;
+	protected static $enabled = array(self::REFERENCE);
 
-	public static function set($new_locale = self::REFERENCE)
+	public static function set($new_locale)
 	{
-		$new_locale = setlocale(LC_ALL, $new_locale);
-		if ($new_locale) {
-			self::$locale = $new_locale;
-		}
+		return static::$current = setlocale(LC_ALL, $new_locale) ?: static::$current;
 	}
 
-	public static function get_locales()
+	public static function enable(array $enabled)
 	{
-		# XXX
-		return array(self::REFERENCE, 'fr-BE');
+		return static::$enabled = $enabled;
+	}
+
+	public static function enabled()
+	{
+		return static::$enabled;
 	}
 
 	public static function t($string, array $replace_pairs = array())
 	{
-		if (self::$locale !== self::REFERENCE) {
+		isset(static::$current) or static::set(Request::get()->locale()) or static::set(self::REFERENCE);
+
+		if (static::$current !== static::REFERENCE) {
 			foreach (App::all('Sedra\Locale\TranslationProvider') as &$translation_provider) {
-				$translation = $translation_provider->get_translation($string, self::$locale);
+				$translation = $translation_provider->get_translation($string, static::$current);
 				if ($translation) {
 					$string = $translation;
 					break;

@@ -2,8 +2,8 @@
 namespace Sedra\Form;
 
 use Sedra\Form;
+use Sedra\Form\Exception;
 use Sedra\Form\FormElement;
-use Sedra\Form\Exception\InvalidFormUsageException;
 
 use Sedra\Locale;
 
@@ -24,7 +24,7 @@ abstract class Field extends FormElement {
 	function __construct($name, array $options = array())
 	{
 		if (!$name) {
-			throw new InvalidFormUsageException('Every form field should have a name.');
+			throw new Exception('Every form field should have a name.');
 		}
 
 		$this->name = $name;
@@ -42,7 +42,7 @@ abstract class Field extends FormElement {
 		}
 	}
 
-	public function parse(array &$data, array &$files = array())
+	public function parse(array $data, array $files = array())
 	{
 		$this->value = @$data[$this->name];
 	}

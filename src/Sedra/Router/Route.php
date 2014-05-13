@@ -3,6 +3,11 @@
 namespace Sedra\Router;
 
 use Sedra\Request;
+use Sedra\Request\Exception\AccessForbidden as AccessForbiddenException;
+
+use Sedra\Response\Exception\ResponseWrapperNotFound as ResponseWrapperNotFoundException;
+
+use Sedra\Router\Exception\InvalidController as InvalidControllerException;
 
 /**
 *
@@ -11,22 +16,23 @@ class Route
 {
 	public $name;
 	public $methods = array('GET');
+	public $ajax = false;
 	public $query;
 	public $filters = array();
 	public $handler;
 
-	public function match_method(Request &$request)
+	public function match_method(Request $request)
 	{
 		if (in_array($request->method, $this->methods)) {
 			return true;
 		}
-		if ($request->is_ajax && in_array('AJAX', $this->methods)) {
+		if ($request->is_ajax && $this->ajax) {
 			return true;
 		}
 		return false;
 	}
 
-	public function match(Request &$request, &$arguments)
+	public function match(Request $request, &$arguments)
 	{
 		if (!$this->match_method($request)) {
 			return false;
@@ -51,7 +57,7 @@ class Route
 		return false;
 	}
 
-	public function process(Request &$request, $arguments)
+	public function process(Request $request, array $arguments = array())
 	{
 		if (!$this->access($request)) {
 			throw new AccessForbiddenException($request);
@@ -61,7 +67,7 @@ class Route
 			throw new InvalidControllerException($this);
 		}
 
-		$response = call_user_func_array($this->handler, array(&$request, $arguments));
+		$response = call_user_func_array($this->handler, array($request, $arguments));
 
 		if (!$response instanceof Response) {
 			if (!isset($this->response_wrapper)) {
@@ -80,7 +86,7 @@ class Route
 		if(isset($this->regex))
 			return $this->regex;
 
-		$this->regex = '@^' . preg_replace_callback('/:(\w+)/', array(&$this, 'substitute_filter'), $this->query) . '$@i';
+		$this->regex = '@^' . preg_replace_callback('/:(\w+)/', array($this, 'substitute_filter'), $this->query) . '$@i';
 
 		return $this->regex;
 	}
@@ -93,7 +99,7 @@ class Route
 		return '([\w-]+)';
 	}
 
-	public function access(Request &$request)
+	public function access(Request $request)
 	{
 		return true;
 	}
@@ -109,9 +115,9 @@ class Route
 		return strtr($this->query, $replace_pairs);
 	}
 
-	public static function factory(array $options, $class = __CLASS__)
+	public static function factory(array $options)
 	{
-		$object = new $class;
+		$object = new static;
 		foreach ($options as $key => $value) {
 			if ($key == 'method')
 				$object->methods = (array) $value;

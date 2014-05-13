@@ -3,7 +3,7 @@
 namespace Sedra\Form;
 
 use Sedra\Form;
-use Sedra\Form\Exception\InvalidFormUsageException;
+use Sedra\Form\Exception;
 
 use Sedra\Request;
 use Sedra\Request\HTTP as HTTPRequest;
@@ -16,15 +16,16 @@ abstract class FormElement implements Viewable {
 	protected $form;
 	protected $view_name;
 
-	public function set_form(Form &$form)
+	public function set_form(Form $form)
 	{
-		if ($this->form && $this->form !== $form)
-			throw new InvalidFormUsageException('A field can only be used in one form.');
+		if ($this->form && $this->form !== $form) {
+			throw new Exception('A field can only be used in one form.');
+		}
 
-		$this->form =& $form;
+		$this->form = $form;
 	}
 
-	abstract public function parse(array &$data, array &$files = array());
+	abstract public function parse(array $data, array $files = array());
 	abstract public function is_valid();
 	abstract public function errors();
 	abstract public function values();
